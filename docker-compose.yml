@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: psql-course-project-compose
+    environment:
+      POSTGRES_DB: psql_labs
+      POSTGRES_USER: psql_labs_owner
+      POSTGRES_PASSWORD: psql_labs_owner_password
+    ports:
+      - "5432:5432"
+    restart: always
