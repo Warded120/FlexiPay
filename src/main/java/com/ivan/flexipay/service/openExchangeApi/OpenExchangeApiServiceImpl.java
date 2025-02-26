@@ -1,11 +1,12 @@
-package com.ivan.flexipay.service.openExchangeApiService;
+package com.ivan.flexipay.service.openExchangeApi;
 
 import com.ivan.flexipay.constant.CurrencyCode;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Map;
 
 @Service
 public class OpenExchangeApiServiceImpl implements OpenExchangeApiService {
@@ -13,8 +14,8 @@ public class OpenExchangeApiServiceImpl implements OpenExchangeApiService {
     @Value("${currency.api.url}")
     private String apiUrl;
 
-    @Value("${currency.api.key}")
-    private String apiKey;
+    @Value("${currency.appID}")
+    private String appID;
 
     private final RestTemplate restTemplate;
 
@@ -23,14 +24,37 @@ public class OpenExchangeApiServiceImpl implements OpenExchangeApiService {
         this.restTemplate = restTemplate;
     }
 
-    public Double exchange(Double amount, CurrencyCode from, CurrencyCode to) {
-        String url = apiUrl + "/convert" + "/" + amount + "/" + from.name() + "/" + to.name() + "?app_id=" + apiKey;
+    public Map<String, Object> getExchangeRates() {
+        String url = apiUrl + appID;
+        Map<String, Object> response = restTemplate.getForObject(url, Map.class);
 
-        try {
-            Double response = restTemplate.getForObject(url, Double.class);
-            return response != null ? response : 0.0;
-        } catch (Exception e) {
-            return null;  //TODO: throw a custom exception and handle it
+        if (response != null && response.containsKey("rates")) {
+            return (Map<String, Object>) response.get("rates");
         }
+
+        return null; //TODO: throw an exception
+    }
+
+    //TODO: refactor
+    @Override
+    public Double exchange(Double amount, CurrencyCode from, CurrencyCode to) {
+        Map<String, Object> rates = getExchangeRates();
+
+        if (rates == null || !rates.containsKey(from.toString()) || !rates.containsKey(to.toString())) {
+            throw new IllegalArgumentException("Invalid currency codes or exchange rates not available.");
+        }
+
+        double fromRate = getSafeDouble(rates.get(from.toString()));
+        double toRate = getSafeDouble(rates.get(to.toString()));
+
+        double amountInUsd = amount / fromRate;
+        return amountInUsd * toRate;
+    }
+
+    private double getSafeDouble(Object value) {
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        }
+        throw new IllegalArgumentException("Invalid exchange rate format: " + value);
     }
 }
