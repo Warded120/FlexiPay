@@ -1,5 +1,6 @@
 package com.ivan.flexipay.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ivan.flexipay.constant.CurrencyCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,19 +22,20 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
+@ToString(exclude = "account")
 public class Currency {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer id = 0;
 
-    @Column(name = "code")
+    @Column(name = "currency_code")
     @Enumerated(EnumType.STRING)
-    private CurrencyCode code;
+    private CurrencyCode currencyCode;
 
     @Column(name = "amount")
-    private Double amount;
+    private Double amount = 0d;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
+    @JsonIgnore
     private Account account;
 }

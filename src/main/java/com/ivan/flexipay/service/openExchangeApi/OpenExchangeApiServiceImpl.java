@@ -1,6 +1,8 @@
 package com.ivan.flexipay.service.openExchangeApi;
 
 import com.ivan.flexipay.constant.CurrencyCode;
+import com.ivan.flexipay.exception.exceptions.BadRequestException;
+import com.ivan.flexipay.exception.exceptions.ExchangeRatesNotAvailableException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -32,7 +34,7 @@ public class OpenExchangeApiServiceImpl implements OpenExchangeApiService {
             return (Map<String, Object>) response.get("rates");
         }
 
-        return null; //TODO: throw an exception
+        throw new ExchangeRatesNotAvailableException("exchange rates are not available");
     }
 
     //TODO: refactor
@@ -41,7 +43,7 @@ public class OpenExchangeApiServiceImpl implements OpenExchangeApiService {
         Map<String, Object> rates = getExchangeRates();
 
         if (rates == null || !rates.containsKey(from.toString()) || !rates.containsKey(to.toString())) {
-            throw new IllegalArgumentException("Invalid currency codes or exchange rates not available.");
+            throw new ExchangeRatesNotAvailableException("exchange rates for current currencies are not available");
         }
 
         double fromRate = getSafeDouble(rates.get(from.toString()));
@@ -55,6 +57,6 @@ public class OpenExchangeApiServiceImpl implements OpenExchangeApiService {
         if (value instanceof Number) {
             return ((Number) value).doubleValue();
         }
-        throw new IllegalArgumentException("Invalid exchange rate format: " + value);
+        throw new BadRequestException("Invalid exchange rate format: " + value);
     }
 }

@@ -1,5 +1,6 @@
 package com.ivan.flexipay.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -17,11 +18,26 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
+@ToString(exclude = "currencies")
 public class Account {
     @Id @Column(name = "account_number")
-    private String accountNumber;
+    private String accountId;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<Currency> currencies;
+
+    public void setAccountForCurrencies() {
+        currencies.forEach(currency -> currency.setAccount(this));
+    }
+
+    public static final String defaultJson = """
+            {
+              "accountId": "string",
+              "currencies": [
+                {
+                  "currencyCode": "USD"
+                }
+              ]
+            }
+            """;
 }

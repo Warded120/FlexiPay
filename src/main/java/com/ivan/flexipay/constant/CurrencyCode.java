@@ -1,5 +1,8 @@
 package com.ivan.flexipay.constant;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum CurrencyCode {
     EUR,
     GBP,
@@ -35,4 +38,21 @@ public enum CurrencyCode {
     JPY,
     INR,
     ZAR;
+
+    @JsonCreator
+    public static CurrencyCode fromString(String value) {
+        if (value != null) {
+            for (CurrencyCode currencyCode : CurrencyCode.values()) {
+                if (currencyCode.name().equalsIgnoreCase(value)) {
+                    return currencyCode;
+                }
+            }
+        }
+        return null;
+    }
+
+    @JsonValue
+    public String toJson() {
+        return this.name();
+    }
 }
