@@ -23,12 +23,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Custom exception handler that extends {@link ResponseEntityExceptionHandler}.
+ * This class is used to handle exceptions globally and customize error responses.
+ */
 @RestControllerAdvice
 @AllArgsConstructor
 @Slf4j
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     private ErrorAttributes errorAttributes;
 
+    /**
+     * Retrieves the error attributes for a given web request.
+     *
+     * @param webRequest The web request that caused the exception.
+     * @return A map containing the error attributes, such as the error message.
+     * @see ErrorAttributes#getErrorAttributes(WebRequest, ErrorAttributeOptions)
+     */
     private Map<String, Object> getErrorAttributes(WebRequest webRequest) {
         return new HashMap<>(errorAttributes.getErrorAttributes(webRequest,
                 ErrorAttributeOptions.of(ErrorAttributeOptions.Include.MESSAGE)));
@@ -63,7 +74,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
      * @author Hrenevych Ivan
      */
     @ExceptionHandler(ExchangeRatesNotAvailableException.class)
-    public final ResponseEntity<Object> handleFunctionalityNotAvailableException(ExchangeRatesNotAvailableException ex,
+    public final ResponseEntity<Object> handleExchangeRatesNotAvailableException(ExchangeRatesNotAvailableException ex,
                                                                                  WebRequest request) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(getErrorAttributes(request));
         exceptionResponse.setMessage(ex.getMessage());
@@ -71,6 +82,15 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(exceptionResponse);
     }
 
+    /**
+     * Method interceptor for API exceptions such as
+     * {@link NotFoundException}
+     *
+     * @param request Contains details about the occurred exception.
+     * @return ResponseEntity which contains the HTTP status and body with the
+     *         message of the exception.
+     * @author Hrenevych Ivan
+     */
     @ExceptionHandler(NotFoundException.class)
     public final ResponseEntity<Object> handleNotFoundException(NotFoundException ex,
                                                                                  WebRequest request) {
@@ -80,6 +100,17 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exceptionResponse);
     }
 
+    /**
+     * Method interceptor for jakarta.validation exceptions
+     *
+     * @param ex      The exception containing validation errors.
+     * @param headers HTTP headers for the response.
+     * @param status  The HTTP status code associated with the error.
+     * @param request The web request that triggered the exception.
+     * @return A {@link ResponseEntity} containing an HTTP 400 Bad Request status and
+     *         a list of validation error details.
+     * @author Hrenevych Ivan
+     */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers, HttpStatusCode status, WebRequest request) {

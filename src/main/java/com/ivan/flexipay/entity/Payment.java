@@ -1,6 +1,7 @@
 package com.ivan.flexipay.entity;
 
 import com.ivan.flexipay.constant.CurrencyCode;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -28,11 +29,11 @@ public class Payment {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.REFRESH, CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "from_account_id")
     private Account fromAccount;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.REFRESH, CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "to_account_id")
     private Account toAccount;
 
@@ -49,4 +50,38 @@ public class Payment {
 
     @Column(name = "timestamp")
     private LocalDateTime timestamp;
+
+    @Column(name = "is_processed")
+    private boolean isProcessed = Boolean.FALSE;
+
+    public static final String defaultJson = """
+                {
+                  "id": 0,
+                  "fromAccount": {
+                    "accountId": "string",
+                    "currencies": [
+                      {
+                        "id": 0,
+                        "currencyCode": "USD",
+                        "amount": 0
+                      }
+                    ]
+                  },
+                  "toAccount": {
+                    "accountId": "string",
+                    "currencies": [
+                      {
+                        "id": 0,
+                        "currencyCode": "USD",
+                        "amount": 0
+                      }
+                    ]
+                  },
+                  "amount": 0,
+                  "fromCurrency": "USD",
+                  "toCurrency": "USD",
+                  "timestamp": "2025-01-01T00:00:00.000Z",
+                  "processed": false
+                }
+            """;
 }

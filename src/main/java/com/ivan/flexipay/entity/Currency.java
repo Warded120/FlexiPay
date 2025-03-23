@@ -38,4 +38,15 @@ public class Currency {
     @JoinColumn(name = "account_id")
     @JsonIgnore
     private Account account;
+
+    public void addAmount(Double amount) {
+        this.amount += amount;
+    }
+
+    public static final String defaultJson = """
+                {
+                  "currency": "USD",
+                  "amount": 0
+                }
+            """;
 }

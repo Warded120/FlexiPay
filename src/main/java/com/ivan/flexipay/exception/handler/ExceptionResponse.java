@@ -8,9 +8,6 @@ import java.util.Map;
 
 /**
  * Response object with information of occur exception.
- *
- * @author Marian Milian
- * @version 1.0
  */
 @Data
 @NoArgsConstructor

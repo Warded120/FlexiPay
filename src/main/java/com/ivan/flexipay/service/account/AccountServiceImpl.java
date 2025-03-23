@@ -1,67 +1,116 @@
 package com.ivan.flexipay.service.account;
 
-import com.ivan.flexipay.dto.CurrencyDto;
-import com.ivan.flexipay.dto.account.AccountDto;
+import com.ivan.flexipay.dto.AccountDto;
+import com.ivan.flexipay.dto.DepositDto;
 import com.ivan.flexipay.entity.Account;
 import com.ivan.flexipay.entity.Currency;
 import com.ivan.flexipay.exception.exceptions.AccountAlreadyExistsException;
 import com.ivan.flexipay.exception.exceptions.NotFoundException;
+import com.ivan.flexipay.mapper.AccountMapper;
+import com.ivan.flexipay.mapper.CurrencyMapper;
 import com.ivan.flexipay.repo.AccountRepo;
+import com.ivan.flexipay.repo.CurrencyRepo;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Service implementation for managing accounts, including financial transactions and deposits.
+ */
 @Service
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
 
-    private final AccountRepo repo;
-    private final ModelMapper modelMapper;
+    private final AccountRepo accountRepo;
+    private final CurrencyRepo currencyRepo;
+    private final AccountMapper accountMapper;
+    private final CurrencyMapper currencyMapper;
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Account> getAllAccounts() {
+        List<Account> accounts = accountRepo.findAll();
+        if (accounts.isEmpty()) {
+            throw new NotFoundException("No accounts found");
+        }
+        return accounts;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Account save(AccountDto accountDto) {
-        if (repo.existsById(accountDto.accountId())) {
+        if (accountRepo.existsById(accountDto.accountId())) {
             throw new AccountAlreadyExistsException("account already exists with account id " + accountDto.accountId());
         }
-        Account account = modelMapper.map(accountDto, Account.class);
+        Account account = accountMapper.toAccount(accountDto);
         account.setAccountForCurrencies();
-        return repo.save(account);
+        return accountRepo.save(account);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Account getByAccountId(String accountId) {
-        if(repo.existsById(accountId)) {
-            return repo.findByAccountId(accountId);
-        }
-        throw new NotFoundException("Account not found with id " + accountId);
+        return accountRepo.findByAccountId(accountId)
+                .orElseThrow(() -> new NotFoundException("Account not found with id " + accountId));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void deleteByAccountId(String accountId) {
-        if(repo.existsById(accountId)) {
-            repo.deleteById(accountId);
-        } else {
+        if(!accountRepo.existsById(accountId)) {
             throw new NotFoundException("Account not found with accountId: " + accountId);
         }
+        accountRepo.deleteById(accountId);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Account updateById(String accountId, List<CurrencyDto> currencies) {
-        if(!repo.existsById(accountId)) {
-             throw new NotFoundException("Account not found with accountId: " + accountId);
+    public Account updateById(AccountDto accountDto) {
+        if(!accountRepo.existsById(accountDto.accountId())) {
+             throw new NotFoundException("Account not found with accountId: " + accountDto.accountId());
         }
-        Account account = repo.findByAccountId(accountId);
+        Account account = accountRepo.findByAccountId(accountDto.accountId())
+                .orElseThrow(() -> new NotFoundException("Account not found with id " + accountDto.accountId()));;
+        account.getCurrencies().clear();
 
-        List<Currency> mappedCurrencies = currencies.stream()
-                .map(currencyDto -> modelMapper.map(currencyDto, Currency.class))
+        List<Currency> mappedCurrencies = accountDto.currencies().stream()
+                .map(currencyMapper::toCurrency)
                 .toList();
 
-        account.setCurrencies(new ArrayList<>(mappedCurrencies));
+        account.getCurrencies().addAll(mappedCurrencies);
         account.setAccountForCurrencies();
 
-        return repo.save(account);
+        return accountRepo.save(account);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Currency deposit(String accountId, DepositDto depositDto) {
+
+        Account account = accountRepo.findByAccountId(accountId)
+                .orElseThrow(() -> new NotFoundException("Account not found by id: " + accountId));
+        Currency currency = currencyRepo.findByAccountAndCurrencyCode(account, depositDto.currency())
+                .orElseThrow(() -> new NotFoundException(
+                        "Currency not found by account id: '" + accountId + "' and/or currency: '" + depositDto.currency() + "'")
+                );
+
+        currency.addAmount(depositDto.amount());
+
+        currencyRepo.save(currency);
+
+        return currency;
     }
 }

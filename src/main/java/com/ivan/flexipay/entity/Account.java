@@ -1,5 +1,7 @@
 package com.ivan.flexipay.entity;
 
+import com.ivan.flexipay.constant.CurrencyCode;
+import com.ivan.flexipay.exception.exceptions.NotFoundException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,8 +25,17 @@ public class Account {
     @Id @Column(name = "account_number")
     private String accountId;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Currency> currencies;
+
+    public Currency getCurrency(CurrencyCode code) {
+        for (Currency currency : currencies) {
+            if (currency.getCurrencyCode().equals(code)) {
+                return currency;
+            }
+        }
+        throw new NotFoundException("Currency not found by code: '" + code + "' in account: '" + accountId + "'");
+    }
 
     public void setAccountForCurrencies() {
         currencies.forEach(currency -> currency.setAccount(this));
