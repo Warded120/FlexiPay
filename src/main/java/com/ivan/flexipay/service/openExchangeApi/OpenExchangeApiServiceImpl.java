@@ -20,7 +20,7 @@ public class OpenExchangeApiServiceImpl implements OpenExchangeApiService {
     @Value("${currency.api.url}")
     private String apiUrl;
 
-    @Value("${currency.appID}")
+    @Value("${currency.api.appID}")
     private String appID;
 
     private final RestTemplate restTemplate;
