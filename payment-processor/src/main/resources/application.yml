@@ -1,6 +1,6 @@
 spring:
   application:
-    name: payments
+    name: open-exchange
 
   datasource:
     url: jdbc:postgresql://localhost:5432/psql_labs
@@ -19,21 +19,26 @@ spring:
   cloud:
     stream:
       bindings:
-        processPayment-out-0:
+        processPayment-in-0:
           destination: payments-to-process
           group: consumer
       default:
-        producer:
+        consumer:
           use-native-decoding: false
       kafka:
         binder:
           brokers: localhost:9092
-          producer-properties:
-            value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
+          consumer-properties:
+            spring.json.trusted.packages: '*'
+            value.deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
 logging:
   level:
     org.springframework.security: DEBUG
 
 server:
-  port: 8082
+  port: 8083
+
+currency:
+  api:
+    url: https://openexchangerates.org/api/latest.json?app_id=
+    appID: 91b5cf4798104d5193b426f43c693158

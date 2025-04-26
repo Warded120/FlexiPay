@@ -87,7 +87,7 @@ public class PaymentController {
 
     })
     @PostMapping("/process/{paymentId}")
-    public ResponseEntity<Payment> processPayment(
+    public ResponseEntity<String> processPayment(
             @PathVariable Integer paymentId) {
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.processPayment(paymentId));
     }

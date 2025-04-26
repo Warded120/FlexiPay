@@ -1,6 +1,6 @@
 spring:
   application:
-    name: FlexiPay
+    name: shared
 
   datasource:
     url: jdbc:postgresql://localhost:5432/psql_labs
@@ -11,14 +11,9 @@ spring:
     generate-ddl: true
     hibernate:
       ddl-auto: create-drop
-
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
   sql:
     init:
       mode: always
-
-logging:
-  level:
-    org.springframework.security: DEBUG
-
-server:
-  port: 8081

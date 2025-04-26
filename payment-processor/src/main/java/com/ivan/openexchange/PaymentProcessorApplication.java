@@ -7,13 +7,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@ComponentScan("com.ivan.shared.config")
+@ComponentScan("com.ivan.shared")
 @EntityScan("com.ivan.shared.entity")
 @EnableJpaRepositories(basePackages = "com.ivan")
-public class OpenExchangeApplication {
-
+public class PaymentProcessorApplication {
     public static void main(String[] args) {
-        SpringApplication.run(OpenExchangeApplication.class, args);
+        SpringApplication.run(PaymentProcessorApplication.class, args);
     }
-
 }

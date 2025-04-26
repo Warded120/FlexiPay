@@ -40,10 +40,10 @@ public interface PaymentService {
      *
      * @param paymentId The ID of the payment to process.
      * @return The processed {@link Payment} entity.
-     * @throws NotFoundException    If the payment or accounts are not found.
+     * @throws NotFoundException   If the payment or accounts are not found.
      * @throws BadRequestException If the payment is already processed.
      */
-    Payment processPayment(Integer paymentId);
+    String processPayment(Integer paymentId);
 
     /**
      * Deletes a payment record by its ID.

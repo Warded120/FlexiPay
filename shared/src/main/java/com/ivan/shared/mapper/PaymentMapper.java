@@ -1,6 +1,5 @@
 package com.ivan.shared.mapper;
 
-import com.ivan.shared.client.AccountClient;
 import com.ivan.shared.dto.PaymentDto;
 import com.ivan.shared.entity.Account;
 import com.ivan.shared.entity.Currency;

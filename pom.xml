@@ -20,7 +20,7 @@
     <modules>
         <module>accounts</module>
         <module>payments</module>
-        <module>open-exchange</module>
+        <module>payment-processor</module>
         <module>shared</module>
     </modules>
 
