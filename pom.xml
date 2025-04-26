@@ -19,6 +19,9 @@
 
     <modules>
         <module>accounts</module>
+        <module>payments</module>
+        <module>open-exchange</module>
+        <module>eureka-server</module>
         <module>shared</module>
     </modules>
 
