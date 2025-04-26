@@ -1,6 +1,5 @@
 package com.ivan.payments.service;
 
-import com.ivan.shared.client.AccountClient;
 import com.ivan.shared.client.OpenExchangeClient;
 import com.ivan.shared.repo.AccountRepo;
 import com.ivan.shared.repo.PaymentRepo;
@@ -23,7 +22,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
     private final OpenExchangeClient openExchangeClient;
-    private final AccountClient accountClient;
     private final PaymentMapper paymentMapper;
     private final PaymentRepo paymentRepo;
     private final AccountRepo accountRepo;
