@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: FlexiPay
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/psql_labs
+    username: psql_labs_owner
+    password: psql_labs_owner_password
+
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create-drop
+
+  sql:
+    init:
+      mode: always
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+server:
+  port: 8081
